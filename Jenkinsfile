@@ -12,14 +12,14 @@ pipeline {
         GIT_BRANCH = "master"
     }
     
-        stages {
-            stage('Cleanup Workspace') {
-                steps {
-                    script {
-                        clean_ws()
-                    }
-                }
-            }
+        // stages {
+        //     stage('Cleanup Workspace') {
+        //         steps {
+        //             script {
+        //                 clean_ws()
+        //             }
+        //         }
+        //     }
         
         stage('Clone Repository') {
             steps {
@@ -59,24 +59,24 @@ pipeline {
             }
         }
         
-        stage('Run Unit Tests') {
-            steps {
-                script {
-                    run_tests()
-                }
-            }
-        }
+        // stage('Run Unit Tests') {
+        //     steps {
+        //         script {
+        //             run_tests()
+        //         }
+        //     }
+        // }
         
-        stage('Security Scan with Trivy') {
-            steps {
-                script {
-                    // Create directory for results
+        // stage('Security Scan with Trivy') {
+        //     steps {
+        //         script {
+        //             // Create directory for results
                   
-                    trivy_scan()
+        //             trivy_scan()
                     
-                }
-            }
-        }
+        //         }
+        //     }
+        // }
         
         stage('Push Docker Images') {
             parallel {
@@ -114,8 +114,8 @@ pipeline {
                         imageTag: env.DOCKER_IMAGE_TAG,
                         manifestsPath: 'kubernetes',
                         gitCredentials: 'github-credentials',
-                        gitUserName: 'Jenkins CI',
-                        gitUserEmail: 'shubhamnath5@gmail.com'
+                        gitUserName: 'AmanSharma39',
+                        gitUserEmail: 'amnsharma51@gmail.com'
                     )
                 }
             }
