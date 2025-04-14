@@ -1,4 +1,4 @@
-// @Library('shared') _
+@Library('Shared') _
 
 pipeline {
     agent any
@@ -6,20 +6,20 @@ pipeline {
     environment {
         // Update the main app image name to match the deployment file
         DOCKER_IMAGE_NAME = 'amans333/easyshop-app'
-        DOCKER_MIGRATION_IMAGE_NAME = 'amans333/easyshop-migration'
+        //DOCKER_MIGRATION_IMAGE_NAME = 'amans333/easyshop-migration'
         DOCKER_IMAGE_TAG = "${BUILD_NUMBER}"
         GITHUB_CREDENTIALS = credentials('github-credentials')
         GIT_BRANCH = "master"
-    }
+    // }
     
-        stages {
-            stage('Cleanup Workspace') {
-                steps {
-                    script {
-                        clean_ws()
-                    }
-                }
-            }
+    //     stages {
+    //         stage('Cleanup Workspace') {
+    //             steps {
+    //                 script {
+    //                     clean_ws()
+    //                 }
+    //             }
+    //         }
         
         stage('Clone Repository') {
             steps {
@@ -44,18 +44,18 @@ pipeline {
                     }
                 }
                 
-                stage('Build Migration Image') {
-                    steps {
-                        script {
-                            docker_build(
-                                imageName: env.DOCKER_MIGRATION_IMAGE_NAME,
-                                imageTag: env.DOCKER_IMAGE_TAG,
-                                dockerfile: 'scripts/Dockerfile.migration',
-                                context: '.'
-                            )
-                        }
-                    }
-                }
+                // stage('Build Migration Image') {
+                //     steps {
+                //         script {
+                //             docker_build(
+                //                 imageName: env.DOCKER_MIGRATION_IMAGE_NAME,
+                //                 imageTag: env.DOCKER_IMAGE_TAG,
+                //                 dockerfile: 'scripts/Dockerfile.migration',
+                //                 context: '.'
+                //             )
+                //         }
+                //     }
+                // }
             }
         }
         
@@ -92,31 +92,31 @@ pipeline {
                     }
                 }
                 
-                stage('Push Migration Image') {
-                    steps {
-                        script {
-                            docker_push(
-                                imageName: env.DOCKER_MIGRATION_IMAGE_NAME,
-                                imageTag: env.DOCKER_IMAGE_TAG,
-                                credentials: 'docker-hub-credentials'
-                            )
-                        }
-                    }
-                }
+                // stage('Push Migration Image') {
+                //     steps {
+                //         script {
+                //             docker_push(
+                //                 imageName: env.DOCKER_MIGRATION_IMAGE_NAME,
+                //                 imageTag: env.DOCKER_IMAGE_TAG,
+                //                 credentials: 'docker-hub-credentials'
+                //             )
+                //         }
+                //     }
+                // }
             }
         }
         
         // Add this new stage
-        stage('Update Kubernetes Manifests') {
-            steps {
-                script {
-                    update_k8s_manifests(
-                        imageTag: env.DOCKER_IMAGE_TAG,
-                        manifestsPath: 'kubernetes',
-                        gitCredentials: 'github-credentials',
-                        gitUserName: 'AmanSharma39',
-                        gitUserEmail: 'amnsharma51@gmail.com'
-                    )
+        // stage('Update Kubernetes Manifests') {
+        //     steps {
+        //         script {
+        //             update_k8s_manifests(
+        //                 imageTag: env.DOCKER_IMAGE_TAG,
+        //                 manifestsPath: 'kubernetes',
+        //                 gitCredentials: 'github-credentials',
+        //                 gitUserName: 'AmanSharma39',
+        //                 gitUserEmail: 'amnsharma51@gmail.com'
+        //             )
                 }
             }
         }
