@@ -1,5 +1,4 @@
 
-
 pipeline {
     agent any
 
@@ -9,19 +8,14 @@ pipeline {
         GITHUB_CREDENTIALS = credentials('GIthubCred')
         GIT_BRANCH = "master"
     }
+
     stages {
-        stage('Cleanup Workspace') {
-            steps {
-                script {
-                    clean_ws()
-                }
-            }
-        }
+
         stage('Clone Repository') {
             steps {
-                script {
-                    clone("https://github.com/AmanSharma39/tws-e-commerce-app.git", "master")
-                }
+                git branch: env.GIT_BRANCH,
+                    url: 'https://github.com/AmanSharma39/tws-e-commerce-app.git',
+                    credentialsId: env.GITHUB_CREDENTIALS
             }
         }
 
