@@ -22,7 +22,7 @@ pipeline {
                         script {
                             docker_build(
                                 imageName: env.DOCKER_IMAGE_NAME,
-                                //imageTag: env.DOCKER_IMAGE_TAG,
+                                imageTag: latest,
                                 dockerfile: 'Dockerfile',
                                 context: '.'
                             )
@@ -30,13 +30,17 @@ pipeline {
                     }
                 }
 
-        // stage('Push Docker Image') {
-        //     steps {
-        //         sh """
-        //             docker push ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
-        //         """
-        //     }
-        // }
+        stage('Push Main App Image') {
+                    steps {
+                        script {
+                            docker_push(
+                                imageName: env.DOCKER_IMAGE_NAME,
+                                imageTag: latest,
+                                credentials: 'docker-hub-credentials'
+                            )
+                        }
+                    }
+                }
     }
 }
 
