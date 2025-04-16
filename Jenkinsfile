@@ -12,7 +12,7 @@ pipeline {
         GIT_BRANCH = "master"
     // }
     
-    //     stages {
+         stages {
     //         stage('Cleanup Workspace') {
     //             steps {
     //                 script {
@@ -121,4 +121,5 @@ pipeline {
         //     }
         // }
     }
+}
 }
