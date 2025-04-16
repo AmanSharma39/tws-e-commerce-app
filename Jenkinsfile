@@ -5,7 +5,6 @@ pipeline {
         DOCKER_IMAGE_NAME = 'amans333/easyshop-app'
         DOCKER_IMAGE_TAG = "${BUILD_NUMBER}"
         GITHUB_CREDENTIALS = credentials('GIthubCred')
-        DOCKER_HUB_CREDENTIALS = credentials('Devops') // 👈 using 'devops' as DockerHub credentials
         GIT_BRANCH = 'master'
     }
 
@@ -20,33 +19,30 @@ pipeline {
 
         stage('Docker Login') {
             steps {
-                script {
-                    sh """
-                        echo "${DOCKER_HUB_CREDENTIALS_PSW}" | docker login -u "${DOCKER_HUB_CREDENTIALS_USR}" --password-stdin
-                    """
+                withCredentials([usernamePassword(credentialsId: 'Devops', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh '''
+                        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+                    '''
                 }
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    sh """
-                        docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} .
-                    """
-                }
+                sh """
+                    docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} .
+                """
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                script {
-                    sh """
-                        docker push ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
-                    """
-                }
+                sh """
+                    docker push ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
+                """
             }
         }
     }
 }
+
 
