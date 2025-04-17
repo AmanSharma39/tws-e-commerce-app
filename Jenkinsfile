@@ -30,7 +30,7 @@ pipeline {
                     steps {
                         script {
                             sh """
-                                docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f Dockerfile .
+                                docker build -t amans333/easyshop-app .
                             """
                         }
                     }
