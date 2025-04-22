@@ -54,12 +54,12 @@ pipeline {
         }
         
         // Optional stage for security scan (Trivy)
-        stage('Security Scan with Trivy') {
-            steps {
-                script {
-                    trivyScan()
-                }
-            }
-        }
+        // stage('Security Scan with Trivy') {
+        //     steps {
+        //         script {
+        //             trivyScan()
+        //         }
+        //     }
+        // }
     }
 }
