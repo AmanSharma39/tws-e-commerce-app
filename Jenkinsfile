@@ -1,88 +1,65 @@
+@Library('Shared') _
+
 pipeline {
     agent any
-
+    
     environment {
+        // Update the main app image name to match the deployment file
         DOCKER_IMAGE_NAME = 'amans333/easyshop-app'
-        DOCKER_MIGRATION_IMAGE_NAME = 'amans333/easyshop-migration'
         DOCKER_IMAGE_TAG = "${BUILD_NUMBER}"
-        GITHUB_CREDENTIALS = credentials('GIthubCred')
+        GITHUB_CREDENTIALS = credentials('github-credentials')
         GIT_BRANCH = "master"
     }
-
+    
     stages {
         stage('Cleanup Workspace') {
             steps {
-                cleanWs()
+                script {
+                    cleanupWorkspace()
+                }
             }
         }
-
+        
         stage('Clone Repository') {
             steps {
-                git branch: env.GIT_BRANCH,
-                    url: 'https://github.com/LondheShubham153/tws-e-commerce-app.git',
-                    credentialsId: env.GITHUB_CREDENTIALS
+                script {
+                    checkoutRepo("https://github.com/AmanSharma39/tws-e-commerce-app.git", "master")
+                }
             }
         }
-
+        
         stage('Build Docker Images') {
-            parallel {
-                stage('Build Main App Image') {
-                    steps {
-                        script {
-                            sh """
-                                docker build -t amans333/easyshop-app .
-                            """
-                        }
-                    }
-                }
-
-                stage('Build Migration Image') {
-                    steps {
-                        script {
-                            sh """
-                                docker build -t ${DOCKER_MIGRATION_IMAGE_NAME}:${DOCKER_IMAGE_TAG} -f scripts/Dockerfile.migration .
-                            """
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Run Unit Tests') {
             steps {
                 script {
-                    sh 'echo "Running unit tests..."'
-                    // Add real test commands here
+                    buildDockerImage(
+                        imageName: env.DOCKER_IMAGE_NAME,
+                        imageTag: env.DOCKER_IMAGE_TAG,
+                        dockerfile: 'Dockerfile',
+                        context: '.'
+                    )
                 }
             }
         }
-
+        
         stage('Push Docker Images') {
-            parallel {
-                stage('Push Main App Image') {
-                    steps {
-                        withCredentials([usernamePassword(credentialsId: 'Devops', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                            sh """
-                                echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                                docker push ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
-                            """
-                        }
-                    }
+            steps {
+                script {
+                    pushDockerImage(
+                        imageName: env.DOCKER_IMAGE_NAME,
+                        imageTag: env.DOCKER_IMAGE_TAG,
+                        credentials: 'docker-hub-credentials'
+                    )
                 }
-
-                // Uncomment when you want to push migration image too
-                // stage('Push Migration Image') {
-                //     steps {
-                //         withCredentials([usernamePassword(credentialsId: 'Devops', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                //             sh """
-                //                 echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                //                 docker push ${DOCKER_MIGRATION_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
-                //             """
-                //         }
-                //     }
-                // }
+            }
+        }
+        
+        // Optional stage for security scan (Trivy)
+        stage('Security Scan with Trivy') {
+            steps {
+                script {
+                    trivyScan()
+                }
             }
         }
     }
 }
-
